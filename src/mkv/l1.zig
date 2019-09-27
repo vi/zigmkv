@@ -73,8 +73,7 @@ const WaitingForSize = struct {
 
 const StreamingData = struct {
     element_id: u32,
-    element_inner_size: ?u32,
-    bytes_remaining: u32,
+    bytes_remaining: ?u32,
 };
 
 const State = union(enum) {
@@ -117,7 +116,7 @@ fn ebml_num_size(first_byte:u8) !usize {
 }
 
 fn ebml_get_unsigned(b:[]const u8, with_tag: bool) ?u64 {
-    std.debug.assert(b.len > 1);
+    std.debug.assert(b.len > 0);
     const s = ebml_num_size(b[0]) catch @panic("Invalid EMBL variable-length number");
     std.debug.assert(b.len == s);
     
@@ -172,8 +171,23 @@ pub fn push_bytes(
                 };
                 continue;
             },
-            .waiting_for_size => |ss| {
-                @panic("unimplemented");
+            .waiting_for_size => |*ss| {
+                const ret : anyerror!?u64 = ss.reading_num.push_bytes(&bb, false);
+                _ = ret catch |x| if (x == error._NotReadyYet) continue;
+                var size = try ret;
+
+                if (size) |x| if (x > 0xFFFFFFFF) {
+                    // Considering that large elements infinite
+                    size = null;
+                };
+
+                self.state = State {
+                    .streaming_data = StreamingData {
+                        .element_id = ss.element_id,
+                        .bytes_remaining = if(size)|x|@intCast(u32, x) else null,
+                    },
+                };
+                continue;
             },
             .streaming_data => |ss| {
                 _ = try callback(usrdata, Event{.RawData=bb});
