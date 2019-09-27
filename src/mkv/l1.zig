@@ -120,19 +120,18 @@ fn ebml_get_unsigned(b:[]const u8, with_tag: bool) ?u64 {
     const s = ebml_num_size(b[0]) catch @panic("Invalid EMBL variable-length number");
     std.debug.assert(b.len == s);
     
-    const mask : u8 = if (with_tag)
-        u8(0xFF)
-    else switch(s) {
-        1 => u8(0x7F),
-        2 => 0x3F,
-        3 => 0x1F,
-        4 => 0x0F,
-        5 => 0x07,
-        6 => 0x03,
-        7 => 0x01,
-        8 => 0x00,
+    var mask : u8 = switch(s) {
+        1 => u8(0xFF),
+        2 => 0x7F,
+        3 => 0x3F,
+        4 => 0x1F,
+        5 => 0x0F,
+        6 => 0x07,
+        7 => 0x03,
+        8 => 0x01,
         else => unreachable,
     };
+    if (!with_tag) mask >>= 1;
     var x           = @intCast(u64, mask & b[0]);
     var maxpossible = @intCast(u64, mask);
 
@@ -145,6 +144,39 @@ fn ebml_get_unsigned(b:[]const u8, with_tag: bool) ?u64 {
 
     if (x == maxpossible) return null;
     return x;
+}
+test "ebml_get_unsigned" {
+    const expectEqual = @import("std").testing.expectEqual;
+    expectEqual((?u64)(0x1A45DFA3), ebml_get_unsigned("\x1a\x45\xdf\xa3", true));
+    expectEqual((?u64)(0x0A45DFA3), ebml_get_unsigned("\x1a\x45\xdf\xa3", false));
+    expectEqual((?u64)(null), ebml_get_unsigned("\x1f\xff\xff\xff", false));
+    expectEqual((?u64)(null), ebml_get_unsigned("\x3f\xff\xff", false));
+    expectEqual((?u64)(null), ebml_get_unsigned("\x7f\xff", false));
+    expectEqual((?u64)(null), ebml_get_unsigned("\xff", false));
+    expectEqual((?u64)(null), ebml_get_unsigned("\x1f\xff\xff\xff", true));
+    expectEqual((?u64)(null), ebml_get_unsigned("\x3f\xff\xff", true));
+    expectEqual((?u64)(null), ebml_get_unsigned("\x7f\xff", true));
+    expectEqual((?u64)(null), ebml_get_unsigned("\xff", true));
+    expectEqual((?u64)(0), ebml_get_unsigned("\x80", false));
+    expectEqual((?u64)(0), ebml_get_unsigned("\x40\x00", false));
+    expectEqual((?u64)(0), ebml_get_unsigned("\x20\x00\x00", false));
+    expectEqual((?u64)(0), ebml_get_unsigned("\x10\x00\x00\x00", false));
+    expectEqual((?u64)(0), ebml_get_unsigned("\x08\x00\x00\x00\x00", false));
+    expectEqual((?u64)(0), ebml_get_unsigned("\x04\x00\x00\x00\x00\x00", false));
+    expectEqual((?u64)(0), ebml_get_unsigned("\x02\x00\x00\x00\x00\x00\x00", false));
+    expectEqual((?u64)(0), ebml_get_unsigned("\x01\x00\x00\x00\x00\x00\x00\x00", false));
+    expectEqual((?u64)(0xFE), ebml_get_unsigned("\xfe", true));
+    expectEqual((?u64)(0x7FFE), ebml_get_unsigned("\x7f\xfe", true));
+    expectEqual((?u64)(0x3FFFFE), ebml_get_unsigned("\x3f\xff\xfe", true));
+    expectEqual((?u64)(0x1FFFFFFE), ebml_get_unsigned("\x1f\xff\xff\xfe", true));
+    expectEqual((?u64)(0x7E), ebml_get_unsigned("\xfe", false));
+    expectEqual((?u64)(0x3FFE), ebml_get_unsigned("\x7f\xfe", false));
+    expectEqual((?u64)(0x1FFFFE), ebml_get_unsigned("\x3f\xff\xfe", false));
+    expectEqual((?u64)(0x0FFFFFFE), ebml_get_unsigned("\x1f\xff\xff\xfe", false));
+    expectEqual((?u64)(0x07FFFFFFFE), ebml_get_unsigned("\x0f\xff\xff\xff\xfe", false));
+    expectEqual((?u64)(0x03FFFFFFFFFE), ebml_get_unsigned("\x07\xff\xff\xff\xff\xfe", false));
+    expectEqual((?u64)(0x01FFFFFFFFFFFE), ebml_get_unsigned("\x03\xff\xff\xff\xff\xff\xfe", false));
+    expectEqual((?u64)(0x00FFFFFFFFFFFFFE), ebml_get_unsigned("\x01\xff\xff\xff\xff\xff\xff\xfe", false));
 }
 
 /// Make L1Parser interpret specified bytes, calling `callback` if some event is ready to go.
