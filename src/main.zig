@@ -1,11 +1,7 @@
 const std = @import("std");
 const warn = std.debug.warn;
 
-const mkv = struct {
-    /// Lowest-level EBML parser. Contains no ID database. 
-    /// Handler decides whether to interpret a thing as a master element
-    pub const L1Parser = @import("mkv/l1.zig");
-};
+const mkv = @import("mkv.zig");
 
 fn handler(q : void, ev: mkv.L1Parser.Event) anyerror!mkv.L1Parser.HandlerReply {
     switch(ev) {
