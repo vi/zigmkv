@@ -5,9 +5,9 @@ const mkv = @import("mkv.zig");
 
 fn handler(q : void, ev: mkv.L1Parser.Event) anyerror!mkv.L1Parser.HandlerReply {
     switch(ev) {
-        .TagOpened => warn("open\n"),
-        .RawData => warn("data\n"),
-        .TagClosed => warn("close\n"),
+        .TagOpened => |x| warn("open 0x{x} size={}\n", x.id, x.size),
+        .RawData => |x| warn("data len={}\n", x.len),
+        .TagClosed => |x| warn("close 0x{x}\n", x.id),
     }
     return mkv.L1Parser.HandlerReply.GiveRawData;
 }
@@ -15,7 +15,7 @@ fn handler(q : void, ev: mkv.L1Parser.Event) anyerror!mkv.L1Parser.HandlerReply 
 pub fn main() anyerror!void {
     var si = try std.io.getStdIn();
 
-    var buf : [64]u8 = undefined;
+    var buf : [256]u8 = undefined;
 
     var m = mkv.L1Parser.new();
 
