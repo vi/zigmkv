@@ -8,20 +8,18 @@ state: State,
 pub const TagOpenInfo = struct {
     id: u32,
     size: ?u64,
+    /// To be set by event handler
+    write_true_here_if_master_element: bool,
 };
 pub const TagCloseInfo = struct {
     id: u32,
 };
 
 pub const Event = union(enum) {
-    TagOpened: TagOpenInfo,
-    RawData: []const u8,
+    /// Do not squirrel away the pointer
+    TagOpened: *TagOpenInfo,
+    RawDataChunk: []const u8,
     TagClosed: TagCloseInfo,
-};
-
-pub const HandlerReply = enum {
-    GiveRawData,
-    GoDeeper,
 };
 
 const ReadingEbmlVln = struct {
@@ -109,7 +107,7 @@ pub fn push_bytes(
                     self: *Self, 
                     b: []const u8, 
                     usrdata: var,
-                    callback: fn(usrdata: @typeOf(usrdata), event: Event)anyerror!HandlerReply,
+                    callback: fn(usrdata: @typeOf(usrdata), event: Event)anyerror!void,
                 )anyerror!void {
     var bb = b;
     var loop_again = false; // for some final cleanup events even when all data is processed
@@ -134,7 +132,12 @@ pub fn push_bytes(
                 _ = ret catch |x| if (x == error._NotReadyYet) continue;
                 var size = try ret;
 
-                _ = try callback(usrdata, Event{.TagOpened=TagOpenInfo { .id = ss.element_id, .size = size} });
+                var ti = TagOpenInfo { 
+                    .id = ss.element_id,
+                    .size = size,
+                    .write_true_here_if_master_element = false,
+                };
+                try callback(usrdata, Event{.TagOpened=&ti});
                 if (size) |x| if (x > 0xFFFFFFFF) {
                     // Considering that large elements infinite
                     size = null;
@@ -153,13 +156,13 @@ pub fn push_bytes(
                 if (ss.bytes_remaining)|x|{
                     if (bytes_to_haul_this_time > x) bytes_to_haul_this_time = x;
                 }
-                _ = try callback(usrdata, Event{.RawData=bb[0..bytes_to_haul_this_time]});
+                try callback(usrdata, Event{.RawDataChunk=bb[0..bytes_to_haul_this_time]});
                 bb=bb[bytes_to_haul_this_time..];
                 if (ss.bytes_remaining)|*x|{
                     x.* -= @intCast(u32,bytes_to_haul_this_time);
                     if (x.* == 0) {
                         // finished streaming
-                        _ = try callback(usrdata, Event{.TagClosed=TagCloseInfo { .id = ss.element_id} });
+                        try callback(usrdata, Event{.TagClosed=TagCloseInfo { .id = ss.element_id} });
                         self.state = State {
                             .waiting_for_id = WaitingForId {
                                 .reading_num = ReadingEbmlVln.new(),

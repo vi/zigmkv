@@ -3,13 +3,12 @@ const warn = std.debug.warn;
 
 const mkv = @import("mkv.zig");
 
-fn handler(q : void, ev: mkv.L1Parser.Event) anyerror!mkv.L1Parser.HandlerReply {
+fn handler(q : void, ev: mkv.L1Parser.Event) anyerror!void {
     switch(ev) {
-        .TagOpened => |x| warn("open 0x{x} size={}\n", x.id, x.size),
-        .RawData => |x| warn("data len={}\n", x.len),
-        .TagClosed => |x| warn("close 0x{x}\n", x.id),
+        .TagOpened    => |x| warn("open 0x{x} size={}\n", x.id, x.size),
+        .RawDataChunk => |x| warn("data len={}\n", x.len),
+        .TagClosed    => |x| warn("close 0x{x}\n", x.id),
     }
-    return mkv.L1Parser.HandlerReply.GiveRawData;
 }
 
 pub fn main() anyerror!void {
