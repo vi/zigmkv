@@ -1,6 +1,6 @@
 // This file is codegenerated. Run `./database.py --help` for info.
 const mkv = @import("../mkv.zig");
-const IdInfo = mkv.L2Parser.IdInfo;
+const IdInfo = mkv.id.IdInfo;
 
 pub const database = [_]IdInfo {
     IdInfo { .id=0x1A45DFA3, .typ=.master  , .name="EBML"                        ,.important=true },

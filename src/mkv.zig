@@ -1,7 +1,11 @@
 /// Mid-level Matroska parser. Returns event stream for tag opening, closure and interpreted data.
 /// Does not bother with extracting frames from SimpleBlocks.
-/// Contains Matroska EBML elements database inside.
 pub const L2Parser = @import("mkv/l2.zig");
+
+
+/// Wrapper for Matroska element ID. Allows getting type and name from ID.
+/// Contains Matroska EBML elements database inside.
+pub const id = @import("mkv/id.zig");
 
 /// Lowest-level EBML parser. Contains no ID database. 
 /// Handler decides whether to interpret a thing as a master element
