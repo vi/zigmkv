@@ -3,26 +3,36 @@ const warn = std.debug.warn;
 
 const mkv = @import("mkv.zig");
 
-fn handler(indent : *usize, ev: mkv.L1Parser.Event) anyerror!void {
+fn handler(indent : *usize, ev: mkv.L2Parser.Event) anyerror!void {
     var ugly_counter = indent.*; // Zig should have better syntax for repeating
     while(ugly_counter>0):(ugly_counter-=1) {
         warn("  ");
     }
     switch(ev) {
-        .TagOpened    => |x| {
-            warn("open 0x{x} size={}\n", x.id, x.size);
-            x.write_true_here_if_master_element = switch (x.id) {
-                0x1a45dfa3 => true,
-                0x18538067 => true,
-                0x114d9b74 => true,
-                0x1549a966 => true,
-                else => false,
-            };
+        .element_begins => |x| {
+            warn("open 0x{x} ({}) type={} size={}\n", x.id.id, x.id.get_name(), x.typ, x.size);
             indent.* += 1;
         },
-        .RawDataChunk => |x| warn("data len={}\n", x.len),
-        .TagClosed    => |x| {
-            warn("close 0x{x}\n", x.id);
+        .number => |x|{
+            warn("number {}\n", x);
+        },
+        .signed_number => |x|{
+            warn("signed_number {}\n", x);
+        },
+        .binary_chunk => |x|{
+            warn("binary chunk len={}\n", x.len);
+        },
+        .string_chunk => |x|{
+            warn("string {}\n", x);
+        },
+        .utf8_chunk => |x|{
+            warn("utf8 {}\n", x);
+        },
+        .float => |x| {
+            warn("float {}\n", x);
+        },
+        .element_ends => |x| {
+            warn("close 0x{x} ({}) type={}\n", x.id.id, x.id.get_name(), x.typ);
             indent.* -= 1;
         },
     }
@@ -33,7 +43,7 @@ pub fn main() anyerror!void {
 
     var buf : [256]u8 = undefined;
 
-    var m = mkv.L1Parser.new();
+    var m = mkv.L2Parser.new();
 
     var indent : usize = 0;
 
