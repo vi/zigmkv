@@ -73,7 +73,7 @@ def codegen_database_zig():
         { 'id':"0x1A45DFA3", 'type':"master"  , "name": "EBML"                        ,"imp":"important" },
         { 'id':"0x4286"    , 'type':"uinteger", "name": "EBMLVersion"                 ,"imp":"default"   },
         { 'id':"0x42F7"    , 'type':"uinteger", "name": "EBMLReadVersion"             ,"imp":"important" },
-        { 'id':"0x42F2"    , 'type':"string"  , "name": "EBMLMaxIDLength"             ,"imp":"default"   },
+        { 'id':"0x42F2"    , 'type':"uinteger", "name": "EBMLMaxIDLength"             ,"imp":"default"   },
         { 'id':"0x42F3"    , 'type':"uinteger", "name": "EBMLMaxSizeLength"           ,"imp":"default"   },
         { 'id':"0x4282"    , 'type':"string"  , "name": "DocType"                     ,"imp":"important" },
         { 'id':"0x4287"    , 'type':"uinteger", "name": "DocTypeVersion"              ,"imp":"default"   },

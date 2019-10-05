@@ -35,9 +35,11 @@ pub const IdInfo = struct {
 
 const database2 = @import("database.zig");
 
-/// Is not expected to be included in compiled code unless explicitly references
-/// Type is `[_]IdInfo`
-pub const database = database2.database;
+/// `database` is not expected to be included in compiled code unless explicitly references
+/// Type of it is `[_]IdInfo`
+///
+/// There are also a lot of ID_SomeElementName constants typed `Id`.
+usingnamespace database2;
 
 /// Wrapper type for Matroska element ID.
 pub const Id = struct {

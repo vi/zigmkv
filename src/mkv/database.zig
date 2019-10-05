@@ -8,7 +8,7 @@ pub const database = [_]IdInfo {
     IdInfo { .id=0x1A45DFA3, .typ=.master  , .name="EBML"                        ,.importance=.important },
     IdInfo { .id=0x4286    , .typ=.uinteger, .name="EBMLVersion"                 ,.importance=.default   },
     IdInfo { .id=0x42F7    , .typ=.uinteger, .name="EBMLReadVersion"             ,.importance=.important },
-    IdInfo { .id=0x42F2    , .typ=.string  , .name="EBMLMaxIDLength"             ,.importance=.default   },
+    IdInfo { .id=0x42F2    , .typ=.uinteger, .name="EBMLMaxIDLength"             ,.importance=.default   },
     IdInfo { .id=0x42F3    , .typ=.uinteger, .name="EBMLMaxSizeLength"           ,.importance=.default   },
     IdInfo { .id=0x4282    , .typ=.string  , .name="DocType"                     ,.importance=.important },
     IdInfo { .id=0x4287    , .typ=.uinteger, .name="DocTypeVersion"              ,.importance=.default   },

@@ -4,6 +4,9 @@ const warn = std.debug.warn;
 const mkv = @import("mkv.zig");
 
 fn handler(indent : *usize, ev: mkv.L2Parser.Event) anyerror!void {
+    if (ev == .unknown_or_void_chunk) {
+        return;
+    }
     var ugly_counter = indent.*; // Zig should have better syntax for repeating
     while(ugly_counter>0):(ugly_counter-=1) {
         warn("  ");
@@ -22,6 +25,7 @@ fn handler(indent : *usize, ev: mkv.L2Parser.Event) anyerror!void {
         .binary_chunk => |x|{
             warn("binary chunk len={}\n", x.len);
         },
+        .unknown_or_void_chunk => unreachable,
         .string_chunk => |x|{
             warn("string {}\n", x);
         },
