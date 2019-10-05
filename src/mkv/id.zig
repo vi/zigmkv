@@ -10,7 +10,8 @@ pub const Importance = enum {
     default,
 };
 
-pub const Type = enum {
+pub const Type = enum(u4) {
+    unknown,
     master,
     uinteger,
     string,
@@ -63,8 +64,8 @@ pub const Id = struct {
         return null;
     }
 
-    pub fn get_type(self:Self)?Type {
-        return if (@inlineCall(entry, self)) |x|x.typ else null;
+    pub fn get_type(self:Self) Type {
+        return if (@inlineCall(entry, self)) |x|x.typ else Type.unknown;
     }
     pub fn get_name(self:Self)?[]const u8 {
         return if (@inlineCall(entry, self)) |x|x.name else null;

@@ -2,17 +2,21 @@ const std = @import("std");
 const mkv = @import("../mkv.zig");
 
 const Id = mkv.id.Id;
+const Type = mkv.id.Type;
 
 
 
 pub const ElementBegins = struct {
     id: Id,
-    size: ?u32,
-    write_true_to_skip_it: *bool,
+    typ: Type,
+    size: ?u64,
+    /// Allows quick-skipping unneeded elements. Contect will be delibered as binary chunks.
+    write_true_to_decode_as_binary: *bool,
 };
 
 pub const ElementEnds = struct {
     id: Id,
+    typ: Type,
 };
 
 
@@ -66,7 +70,42 @@ fn l1handler(
                     usrdata: var,
                     callback: fn(usrdata: @typeOf(usrdata), event: Event)anyerror!void,
                 )anyerror!void {
-    
+    switch(event) {
+        .TagOpened    => |x| {
+            const id = Id.wrap(x.id);
+            const typ = id.get_type();
+            var skip = false;
+            const ev = Event {
+                .element_begins = ElementBegins {
+                    .id = id,
+                    .typ = typ,
+                    .size = x.size,
+                    .write_true_to_decode_as_binary = &skip,
+                }
+            };
+            try callback(usrdata, ev);
+            if (typ == .master and !skip) {
+                x.write_true_here_if_master_element = true;
+            }
+        },
+        .RawDataChunk => |x| {
+            const ev = Event {
+                .binary_chunk = x,
+            };
+            try callback(usrdata, ev);
+        },
+        .TagClosed    => |x| {
+            const id = Id.wrap(x.id);
+            const typ = id.get_type();
+            const ev = Event {
+                .element_ends = ElementEnds {
+                    .id = id,
+                    .typ = typ,
+                }
+            };
+            try callback(usrdata, ev);
+        },
+    }
 }
 
 fn fortest(q: void, e:Event)anyerror!void {}
