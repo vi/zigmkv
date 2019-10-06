@@ -22,52 +22,7 @@ pub const Event = union(enum) {
     TagClosed: TagCloseInfo,
 };
 
-const ReadingEbmlVln = struct {
-    buf: [BUFL]u8,
-    bytes_already_in_buffer: u8,
-
-    const Self2 = @This();
-
-    pub fn new() Self2 {
-        return Self2 {
-            .bytes_already_in_buffer = 0,
-            .buf = [1]u8{0} ** BUFL,
-        };
-    }
-    const PushBytesRet = struct {
-        /// four outcomes: 1. ready number, 2. null, 3. not enough bytes, keep feeding, 3. error happened
-        result: anyerror!?u64,
-        /// Bytes can be consumed even if null returned in `result`
-        consumed_bytes: usize,
-    };
-    pub fn push_bytes(self: *Self2, bb: []const u8, with_tag: bool) PushBytesRet {
-        if (bb.len == 0) return PushBytesRet { .result = error._NotReadyYet, .consumed_bytes = 0 };
-        const bytes_available = @intCast(usize,self.bytes_already_in_buffer) + bb.len;
-        const first_byte : u8 = if (self.bytes_already_in_buffer  > 0) self.buf[0] else bb[0];
-        const required_bytes : usize = vln.len(first_byte) catch |e| return PushBytesRet { .result = e, .consumed_bytes = 0};
-        if (required_bytes > bytes_available) {
-            // Remember those bytes
-            var can_copy = BUFL - @intCast(usize, self.bytes_already_in_buffer);
-            if (can_copy > bb.len) can_copy = bb.len;
-            std.mem.copy(u8, self.buf[self.bytes_already_in_buffer..(self.bytes_already_in_buffer+can_copy)], bb[0..can_copy]);
-            self.bytes_already_in_buffer+=@intCast(u8,can_copy);
-            return PushBytesRet { .result = error._NotReadyYet, .consumed_bytes = can_copy };
-        }
-        var vnb : []const u8 = undefined;
-        var consumed_bytes : usize = undefined;
-        if (self.bytes_already_in_buffer == 0) {
-            // fast&happy path
-            vnb = bb[0..required_bytes];
-            consumed_bytes = required_bytes;
-        } else {
-            const to_copy = required_bytes-self.bytes_already_in_buffer;
-            std.mem.copy(u8, self.buf[self.bytes_already_in_buffer..required_bytes], bb[0..to_copy]);
-            vnb = self.buf[0..required_bytes];
-            consumed_bytes = to_copy;
-        }
-        return PushBytesRet { .result = vln.parse_unsigned(vnb, with_tag), .consumed_bytes = consumed_bytes };
-    }
-};
+const ReadingEbmlVln = vln.EbmlVlnReader;
 
 const WaitingForId = struct {
     reading_num : ReadingEbmlVln,
