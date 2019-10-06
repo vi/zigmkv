@@ -1,3 +1,8 @@
+
+/// Parser of Block / SimpleBlock content
+pub const BufferParser = @import("mkv/bufparse.zig");
+
+
 /// Mid-level Matroska parser. Returns event stream for tag opening, closure and interpreted data.
 /// Does not bother with extracting frames from SimpleBlocks.
 pub const L2Parser = @import("mkv/l2.zig");
