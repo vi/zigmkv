@@ -3,44 +3,57 @@ const warn = std.debug.warn;
 
 const mkv = @import("mkv.zig");
 
-fn handler(indent : *usize, ev: mkv.L2Parser.Event) anyerror!void {
-    if (ev == .unknown_or_void_chunk) {
-        return;
+const L2Dump = struct {
+    indent: usize,
+    f: std.fs.File,
+
+    const Self = @This();
+
+    fn print(self: *Self, comptime format: []const u8, args: ...) anyerror!void {
+        try self.f.outStream().stream.print(format, args);
     }
-    var ugly_counter = indent.*; // Zig should have better syntax for repeating
-    while(ugly_counter>0):(ugly_counter-=1) {
-        warn("  ");
+
+    fn handler(self : *Self, ev: mkv.L2Parser.Event) anyerror!void {
+        if (ev == .unknown_or_void_chunk) {
+            return;
+        }
+        var ugly_counter = self.indent; // Zig should have better syntax for repeating
+        while(ugly_counter>0):(ugly_counter-=1) {
+            try self.print("  ");
+        }
+        switch(ev) {
+            .element_begins => |x| {
+                try self.print("open 0x{x} ({}) type={} size={}\n", x.id.id, x.id.get_name(), x.typ, x.size);
+                self.indent += 1;
+            },
+            .number => |x|{
+                try self.print("number {}\n", x);
+            },
+            .signed_number => |x|{
+                try self.print("signed_number {}\n", x);
+            },
+            .binary_chunk => |x|{
+                try self.print("binary chunk len={}\n", x.len);
+            },
+            .unknown_or_void_chunk => unreachable,
+            .string_chunk => |x|{
+                try self.print("string {}\n", x);
+            },
+            .utf8_chunk => |x|{
+                try self.print("utf8 {}\n", x);
+            },
+            .float => |x| {
+                try self.print("float {}\n", x);
+            },
+            .element_ends => |x| {
+                try self.print("close 0x{x} ({}) type={}\n", x.id.id, x.id.get_name(), x.typ);
+                self.indent -= 1;
+            },
+        }
     }
-    switch(ev) {
-        .element_begins => |x| {
-            warn("open 0x{x} ({}) type={} size={}\n", x.id.id, x.id.get_name(), x.typ, x.size);
-            indent.* += 1;
-        },
-        .number => |x|{
-            warn("number {}\n", x);
-        },
-        .signed_number => |x|{
-            warn("signed_number {}\n", x);
-        },
-        .binary_chunk => |x|{
-            warn("binary chunk len={}\n", x.len);
-        },
-        .unknown_or_void_chunk => unreachable,
-        .string_chunk => |x|{
-            warn("string {}\n", x);
-        },
-        .utf8_chunk => |x|{
-            warn("utf8 {}\n", x);
-        },
-        .float => |x| {
-            warn("float {}\n", x);
-        },
-        .element_ends => |x| {
-            warn("close 0x{x} ({}) type={}\n", x.id.id, x.id.get_name(), x.typ);
-            indent.* -= 1;
-        },
-    }
-}
+};
+
+
 
 var pool : [4096]u8 = undefined;
 
@@ -57,7 +70,11 @@ pub fn tool(argv:[][]const u8) anyerror!void {
 
     var m = mkv.L2Parser.new();
 
-    var indent : usize = 0;
+
+    var l2dump = L2Dump {
+        .indent = 0,
+        .f = try std.io.getStdOut(),
+    };
 
     while(true) {
         var ret = si.read(buf[0..]) catch |e| {
@@ -69,7 +86,7 @@ pub fn tool(argv:[][]const u8) anyerror!void {
         };
         if (ret == 0) break;
         const b = buf[0..ret];
-        try m.push_bytes(b, &indent, handler);
+        try m.push_bytes(b, &l2dump, L2Dump.handler);
     }
-    warn("OK\n");
+    try l2dump.print("OK\n");
 }
