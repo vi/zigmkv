@@ -80,6 +80,11 @@ pub const database = [_]IdInfo {
     IdInfo { .id=0xB9      , .typ=.uinteger, .name="FlagEnabled"                 ,.importance=.default   },
     IdInfo { .id=0x88      , .typ=.uinteger, .name="FlagDefault"                 ,.importance=.default   },
     IdInfo { .id=0x55AA    , .typ=.uinteger, .name="FlagForced"                  ,.importance=.default   },
+    IdInfo { .id=0x55AB    , .typ=.uinteger, .name="FlagHearingImpaired"         ,.importance=.default   },
+    IdInfo { .id=0x55AC    , .typ=.uinteger, .name="FlagVisualImpaired"          ,.importance=.default   },
+    IdInfo { .id=0x55AD    , .typ=.uinteger, .name="FlagTextDescriptions"        ,.importance=.default   },
+    IdInfo { .id=0x55AE    , .typ=.uinteger, .name="FlagOriginal"                ,.importance=.default   },
+    IdInfo { .id=0x55AF    , .typ=.uinteger, .name="FlagCommentary"              ,.importance=.default   },
     IdInfo { .id=0x9C      , .typ=.uinteger, .name="FlagLacing"                  ,.importance=.default   },
     IdInfo { .id=0x6DE7    , .typ=.uinteger, .name="MinCache"                    ,.importance=.default   },
     IdInfo { .id=0x6DF8    , .typ=.uinteger, .name="MaxCache"                    ,.importance=.default   },
@@ -88,6 +93,11 @@ pub const database = [_]IdInfo {
     IdInfo { .id=0x23314F  , .typ=.float   , .name="TrackTimestampScale"         ,.importance=.default   },
     IdInfo { .id=0x537F    , .typ=.integer , .name="TrackOffset"                 ,.importance=.default   },
     IdInfo { .id=0x55EE    , .typ=.uinteger, .name="MaxBlockAdditionID"          ,.importance=.default   },
+    IdInfo { .id=0x41E4    , .typ=.master  , .name="BlockAdditionMapping"        ,.importance=.default   },
+    IdInfo { .id=0x41F0    , .typ=.uinteger, .name="BlockAddIDValue"             ,.importance=.default   },
+    IdInfo { .id=0x41A4    , .typ=.string  , .name="BlockAddIDName"              ,.importance=.default   },
+    IdInfo { .id=0x41E7    , .typ=.uinteger, .name="BlockAddIDType"              ,.importance=.default   },
+    IdInfo { .id=0x41ED    , .typ=.binary  , .name="BlockAddIDExtraData"         ,.importance=.default   },
     IdInfo { .id=0x536E    , .typ=.utf8    , .name="Name"                        ,.importance=.default   },
     IdInfo { .id=0x22B59C  , .typ=.string  , .name="Language"                    ,.importance=.default   },
     IdInfo { .id=0x22B59D  , .typ=.string  , .name="LanguageIETF"                ,.importance=.default   },
@@ -259,6 +269,7 @@ pub const database = [_]IdInfo {
     IdInfo { .id=0x447A    , .typ=.string  , .name="TagLanguage"                 ,.importance=.default   },
     IdInfo { .id=0x447B    , .typ=.string  , .name="TagLanguageIETF"             ,.importance=.default   },
     IdInfo { .id=0x4484    , .typ=.uinteger, .name="TagDefault"                  ,.importance=.default   },
+    IdInfo { .id=0x44B4    , .typ=.uinteger, .name="TagDefaultBogus"             ,.importance=.default   },
     IdInfo { .id=0x4487    , .typ=.utf8    , .name="TagString"                   ,.importance=.default   },
     IdInfo { .id=0x4485    , .typ=.binary  , .name="TagBinary"                   ,.importance=.default   },
 
@@ -339,6 +350,11 @@ pub const ID_TrackType                      = Id.wrap(0x83      );
 pub const ID_FlagEnabled                    = Id.wrap(0xB9      );
 pub const ID_FlagDefault                    = Id.wrap(0x88      );
 pub const ID_FlagForced                     = Id.wrap(0x55AA    );
+pub const ID_FlagHearingImpaired            = Id.wrap(0x55AB    );
+pub const ID_FlagVisualImpaired             = Id.wrap(0x55AC    );
+pub const ID_FlagTextDescriptions           = Id.wrap(0x55AD    );
+pub const ID_FlagOriginal                   = Id.wrap(0x55AE    );
+pub const ID_FlagCommentary                 = Id.wrap(0x55AF    );
 pub const ID_FlagLacing                     = Id.wrap(0x9C      );
 pub const ID_MinCache                       = Id.wrap(0x6DE7    );
 pub const ID_MaxCache                       = Id.wrap(0x6DF8    );
@@ -347,6 +363,11 @@ pub const ID_DefaultDecodedFieldDuration    = Id.wrap(0x234E7A  );
 pub const ID_TrackTimestampScale            = Id.wrap(0x23314F  );
 pub const ID_TrackOffset                    = Id.wrap(0x537F    );
 pub const ID_MaxBlockAdditionID             = Id.wrap(0x55EE    );
+pub const ID_BlockAdditionMapping           = Id.wrap(0x41E4    );
+pub const ID_BlockAddIDValue                = Id.wrap(0x41F0    );
+pub const ID_BlockAddIDName                 = Id.wrap(0x41A4    );
+pub const ID_BlockAddIDType                 = Id.wrap(0x41E7    );
+pub const ID_BlockAddIDExtraData            = Id.wrap(0x41ED    );
 pub const ID_Name                           = Id.wrap(0x536E    );
 pub const ID_Language                       = Id.wrap(0x22B59C  );
 pub const ID_LanguageIETF                   = Id.wrap(0x22B59D  );
@@ -518,5 +539,6 @@ pub const ID_TagName                        = Id.wrap(0x45A3    );
 pub const ID_TagLanguage                    = Id.wrap(0x447A    );
 pub const ID_TagLanguageIETF                = Id.wrap(0x447B    );
 pub const ID_TagDefault                     = Id.wrap(0x4484    );
+pub const ID_TagDefaultBogus                = Id.wrap(0x44B4    );
 pub const ID_TagString                      = Id.wrap(0x4487    );
 pub const ID_TagBinary                      = Id.wrap(0x4485    );
