@@ -1,7 +1,8 @@
 # zigmkv
-A work in progress Matroska/webm (mkv) parser in Zig.
-For now it contains elements database, can decode mkv files to element tree, but it does not yet handle parse frame content and calculate proper timecodes.
-Main idea was to evaluate Zig as a general purpose programming language.
+A work in progress Matroska/webm (mkv) parser in Zig.  
+For now it contains elements database, can decode mkv files to element tree, but it does not yet handle parse frame content and calculate proper timecodes.  
+Main idea was to evaluate Zig as a general purpose programming language.  
+Tested with zig version 0.8.0.  
 
 ```
 $ zig build
