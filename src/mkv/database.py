@@ -84,7 +84,7 @@ def codegen_database_zig():
         { 'id':"0xEC"      , 'type':"binary"  , "name": "Void"                        ,"imp":"default"   },
         { 'id':"0xBF"      , 'type':"binary"  , "name": "CRC32"                       ,"imp":"default"   },
     ];
-    for x in r.findall("q:element",namespaces={"q":"https://ietf.org/cellar/ebml"}):
+    for x in r.findall("q:element",namespaces={"q":"urn:ietf:rfc:8794"}):
         i=x.get("id")
         t=x.get("type")
         n=x.get("name")
