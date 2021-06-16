@@ -75,8 +75,8 @@ pub fn new() Self {
 pub fn push_bytes(
                     self: *Self, 
                     b: []const u8, 
-                    usrdata: var,
-                    callback: fn(usrdata: @typeOf(usrdata), event: Event)anyerror!void,
+                    usrdata: anytype,
+                    callback: fn(usrdata: @TypeOf(usrdata), event: Event)anyerror!void,
                 )anyerror!void {
     var bb = b;
     var loop_again = false; // for some final cleanup events even when all data is processed

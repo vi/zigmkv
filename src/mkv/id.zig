@@ -67,10 +67,10 @@ pub const Id = struct {
     }
 
     pub fn get_type(self:Self) Type {
-        return if (@inlineCall(entry, self)) |x|x.typ else Type.unknown;
+        return if (@call(.{.modifier = .always_inline}, entry, .{self})) |x|x.typ else Type.unknown;
     }
     pub fn get_name(self:Self)?[]const u8 {
-        return if (@inlineCall(entry, self)) |x|x.name else null;
+        return if (@call(.{.modifier = .always_inline}, entry, .{self})) |x|x.name else null;
     }
 
     pub fn eql(self:Self, other:Self)bool {

@@ -170,10 +170,10 @@ state: RawDataChunkMode,
 pub fn push_bytes(
                     self: *Self,
                     b: []const u8,
-                    usrdata: var,
-                    callback: fn(usrdata: @typeOf(usrdata), event: Event)anyerror!void,
+                    usrdata: anytype,
+                    callback: fn(usrdata: @TypeOf(usrdata), event: Event)anyerror!void,
                 )anyerror!void {
-    const H = L1Handler(@typeOf(usrdata));
+    const H = L1Handler(@TypeOf(usrdata));
     const h = H { .self = self,  .usrdata = usrdata, .callback = callback };
     try self.l1.push_bytes(b, h, H.handler);
 }
@@ -192,8 +192,8 @@ fn L1Handler(comptime T:type) type {
 fn l1handler(
                     self: *Self,
                     event: mkv.L1Parser.Event,
-                    usrdata: var,
-                    callback: fn(usrdata: @typeOf(usrdata), event: Event)anyerror!void,
+                    usrdata: anytype,
+                    callback: fn(usrdata: @TypeOf(usrdata), event: Event)anyerror!void,
                 )anyerror!void {
     switch(event) {
         .TagOpened    => |x| {

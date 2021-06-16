@@ -9,8 +9,8 @@ const L2Dump = struct {
 
     const Self = @This();
 
-    fn print(self: *Self, comptime format: []const u8, args: ...) anyerror!void {
-        try self.f.outStream().stream.print(format, args);
+    fn print(self: *Self, comptime format: []const u8, args: anytype) anyerror!void {
+        try self.f.writer().print(format, args);
     }
 
     fn handler(self : *Self, ev: mkv.L2Parser.Event) anyerror!void {
@@ -19,34 +19,34 @@ const L2Dump = struct {
         }
         var ugly_counter = self.indent; // Zig should have better syntax for repeating
         while(ugly_counter>0):(ugly_counter-=1) {
-            try self.print("  ");
+            try self.print("  ", .{});
         }
         switch(ev) {
             .element_begins => |x| {
-                try self.print("open 0x{x} ({}) type={} size={}\n", x.id.id, x.id.get_name(), x.typ, x.size);
+                try self.print("open 0x{x} ({s}) type={} size={}\n", .{x.id.id, x.id.get_name(), x.typ, x.size});
                 self.indent += 1;
             },
             .number => |x|{
-                try self.print("number {}\n", x);
+                try self.print("number {}\n", .{x});
             },
             .signed_number => |x|{
-                try self.print("signed_number {}\n", x);
+                try self.print("signed_number {}\n", .{x});
             },
             .binary_chunk => |x|{
-                try self.print("binary chunk len={}\n", x.len);
+                try self.print("binary chunk len={}\n", .{x.len});
             },
             .unknown_or_void_chunk => unreachable,
             .string_chunk => |x|{
-                try self.print("string {}\n", x);
+                try self.print("string {s}\n", .{x});
             },
             .utf8_chunk => |x|{
-                try self.print("utf8 {}\n", x);
+                try self.print("utf8 {s}\n", .{x});
             },
             .float => |x| {
-                try self.print("float {}\n", x);
+                try self.print("float {}\n", .{x});
             },
             .element_ends => |x| {
-                try self.print("close 0x{x} ({}) type={}\n", x.id.id, x.id.get_name(), x.typ);
+                try self.print("close 0x{x} ({s}) type={}\n", .{x.id.id, x.id.get_name(), x.typ});
                 self.indent -= 1;
             },
         }
@@ -60,11 +60,11 @@ var pool : [4096]u8 = undefined;
 pub fn tool(argv:[][]const u8) anyerror!void {
 
     if (argv.len > 0) {
-        warn("Usage: zigmkv l2dump < input_file.mkv\n");
+        warn("Usage: zigmkv l2dump < input_file.mkv\n", .{});
         std.process.exit(1);
     }
 
-    var si = try std.io.getStdIn();
+    var si = std.io.getStdIn();
 
     var buf : [256]u8 = undefined;
 
@@ -73,7 +73,7 @@ pub fn tool(argv:[][]const u8) anyerror!void {
 
     var l2dump = L2Dump {
         .indent = 0,
-        .f = try std.io.getStdOut(),
+        .f = std.io.getStdOut(),
     };
 
     while(true) {
@@ -88,5 +88,5 @@ pub fn tool(argv:[][]const u8) anyerror!void {
         const b = buf[0..ret];
         try m.push_bytes(b, &l2dump, L2Dump.handler);
     }
-    try l2dump.print("OK\n");
+    try l2dump.print("OK\n", .{});
 }

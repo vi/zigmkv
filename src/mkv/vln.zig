@@ -25,7 +25,7 @@ pub fn parse_unsigned(b:[]const u8, with_tag: bool) ?u64 {
     assert(b.len == s);
     
     var mask : u8 = switch(s) {
-        1 => u8(0xFF),
+        1 => 0xFF,
         2 => 0x7F,
         3 => 0x3F,
         4 => 0x1F,
