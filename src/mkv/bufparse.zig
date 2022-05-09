@@ -61,4 +61,6 @@ pub fn new() Self {
 test "basic" {
     const q = Self.new();
     const e = Event { .track_number = 3 };
+    _ = e;
+    _ = q;
 }

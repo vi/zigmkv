@@ -53,12 +53,12 @@ pub const Id = struct {
 
     fn entry(self:Self)?IdInfo {
         @setEvalBranchQuota(2000);
-        inline for (database) |x| {
+        inline for (database2.database) |x| {
             if (x.importance == .hot) {
                 if (self.id == x.id) return x;
             }
         }
-        inline for (database) |x| {
+        inline for (database2.database) |x| {
             if (x.importance == .important or (know_all_elements and x.importance != .hot) ) {
                 if (self.id == x.id) return x;
             }

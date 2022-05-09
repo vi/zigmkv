@@ -303,10 +303,11 @@ fn l1handler(
     }
 }
 
-fn fortest(q: void, e:Event)anyerror!void {}
+fn fortest(q: void, e:Event)anyerror!void {_ = e;_=q;}
 
 test "l2" {
     const e = Event { .number = 0 };
+    _ = e;
     var p : Self = new();
 
     try p.push_bytes("", {}, fortest);
