@@ -24,11 +24,11 @@ pub const database = [_]IdInfo {
     IdInfo { .id=0x53AB    , .typ=.binary  , .name="SeekID"                      ,.importance=.default   },
     IdInfo { .id=0x53AC    , .typ=.uinteger, .name="SeekPosition"                ,.importance=.default   },
     IdInfo { .id=0x1549A966, .typ=.master  , .name="Info"                        ,.importance=.important },
-    IdInfo { .id=0x73A4    , .typ=.binary  , .name="SegmentUID"                  ,.importance=.default   },
+    IdInfo { .id=0x73A4    , .typ=.binary  , .name="SegmentUUID"                 ,.importance=.default   },
     IdInfo { .id=0x7384    , .typ=.utf8    , .name="SegmentFilename"             ,.importance=.default   },
-    IdInfo { .id=0x3CB923  , .typ=.binary  , .name="PrevUID"                     ,.importance=.default   },
+    IdInfo { .id=0x3CB923  , .typ=.binary  , .name="PrevUUID"                    ,.importance=.default   },
     IdInfo { .id=0x3C83AB  , .typ=.utf8    , .name="PrevFilename"                ,.importance=.default   },
-    IdInfo { .id=0x3EB923  , .typ=.binary  , .name="NextUID"                     ,.importance=.default   },
+    IdInfo { .id=0x3EB923  , .typ=.binary  , .name="NextUUID"                    ,.importance=.default   },
     IdInfo { .id=0x3E83BB  , .typ=.utf8    , .name="NextFilename"                ,.importance=.default   },
     IdInfo { .id=0x4444    , .typ=.binary  , .name="SegmentFamily"               ,.importance=.default   },
     IdInfo { .id=0x6924    , .typ=.master  , .name="ChapterTranslate"            ,.importance=.default   },
@@ -100,7 +100,7 @@ pub const database = [_]IdInfo {
     IdInfo { .id=0x41ED    , .typ=.binary  , .name="BlockAddIDExtraData"         ,.importance=.default   },
     IdInfo { .id=0x536E    , .typ=.utf8    , .name="Name"                        ,.importance=.default   },
     IdInfo { .id=0x22B59C  , .typ=.string  , .name="Language"                    ,.importance=.default   },
-    IdInfo { .id=0x22B59D  , .typ=.string  , .name="LanguageIETF"                ,.importance=.default   },
+    IdInfo { .id=0x22B59D  , .typ=.string  , .name="LanguageBCP47"               ,.importance=.default   },
     IdInfo { .id=0x86      , .typ=.string  , .name="CodecID"                     ,.importance=.important },
     IdInfo { .id=0x63A2    , .typ=.binary  , .name="CodecPrivate"                ,.importance=.important },
     IdInfo { .id=0x258688  , .typ=.utf8    , .name="CodecName"                   ,.importance=.default   },
@@ -132,7 +132,7 @@ pub const database = [_]IdInfo {
     IdInfo { .id=0x54BA    , .typ=.uinteger, .name="DisplayHeight"               ,.importance=.default   },
     IdInfo { .id=0x54B2    , .typ=.uinteger, .name="DisplayUnit"                 ,.importance=.default   },
     IdInfo { .id=0x54B3    , .typ=.uinteger, .name="AspectRatioType"             ,.importance=.default   },
-    IdInfo { .id=0x2EB524  , .typ=.binary  , .name="ColourSpace"                 ,.importance=.default   },
+    IdInfo { .id=0x2EB524  , .typ=.binary  , .name="UncompressedFourCC"          ,.importance=.default   },
     IdInfo { .id=0x2FB523  , .typ=.float   , .name="GammaValue"                  ,.importance=.default   },
     IdInfo { .id=0x2383E3  , .typ=.float   , .name="FrameRate"                   ,.importance=.default   },
     IdInfo { .id=0x55B0    , .typ=.master  , .name="Colour"                      ,.importance=.default   },
@@ -172,6 +172,7 @@ pub const database = [_]IdInfo {
     IdInfo { .id=0x9F      , .typ=.uinteger, .name="Channels"                    ,.importance=.important },
     IdInfo { .id=0x7D7B    , .typ=.binary  , .name="ChannelPositions"            ,.importance=.default   },
     IdInfo { .id=0x6264    , .typ=.uinteger, .name="BitDepth"                    ,.importance=.default   },
+    IdInfo { .id=0x92F1    , .typ=.uinteger, .name="Emphasis"                    ,.importance=.default   },
     IdInfo { .id=0xE2      , .typ=.master  , .name="TrackOperation"              ,.importance=.default   },
     IdInfo { .id=0xE3      , .typ=.master  , .name="TrackCombinePlanes"          ,.importance=.default   },
     IdInfo { .id=0xE4      , .typ=.master  , .name="TrackPlane"                  ,.importance=.default   },
@@ -220,7 +221,7 @@ pub const database = [_]IdInfo {
     IdInfo { .id=0x61A7    , .typ=.master  , .name="AttachedFile"                ,.importance=.default   },
     IdInfo { .id=0x467E    , .typ=.utf8    , .name="FileDescription"             ,.importance=.default   },
     IdInfo { .id=0x466E    , .typ=.utf8    , .name="FileName"                    ,.importance=.default   },
-    IdInfo { .id=0x4660    , .typ=.string  , .name="FileMimeType"                ,.importance=.default   },
+    IdInfo { .id=0x4660    , .typ=.string  , .name="FileMediaType"               ,.importance=.default   },
     IdInfo { .id=0x465C    , .typ=.binary  , .name="FileData"                    ,.importance=.default   },
     IdInfo { .id=0x46AE    , .typ=.uinteger, .name="FileUID"                     ,.importance=.default   },
     IdInfo { .id=0x4675    , .typ=.binary  , .name="FileReferral"                ,.importance=.default   },
@@ -232,6 +233,9 @@ pub const database = [_]IdInfo {
     IdInfo { .id=0x45BD    , .typ=.uinteger, .name="EditionFlagHidden"           ,.importance=.default   },
     IdInfo { .id=0x45DB    , .typ=.uinteger, .name="EditionFlagDefault"          ,.importance=.default   },
     IdInfo { .id=0x45DD    , .typ=.uinteger, .name="EditionFlagOrdered"          ,.importance=.default   },
+    IdInfo { .id=0x4520    , .typ=.master  , .name="EditionDisplay"              ,.importance=.default   },
+    IdInfo { .id=0x4521    , .typ=.utf8    , .name="EditionString"               ,.importance=.default   },
+    IdInfo { .id=0x45E4    , .typ=.string  , .name="EditionLanguageIETF"         ,.importance=.default   },
     IdInfo { .id=0xB6      , .typ=.master  , .name="ChapterAtom"                 ,.importance=.default   },
     IdInfo { .id=0x73C4    , .typ=.uinteger, .name="ChapterUID"                  ,.importance=.default   },
     IdInfo { .id=0x5654    , .typ=.utf8    , .name="ChapterStringUID"            ,.importance=.default   },
@@ -239,7 +243,8 @@ pub const database = [_]IdInfo {
     IdInfo { .id=0x92      , .typ=.uinteger, .name="ChapterTimeEnd"              ,.importance=.default   },
     IdInfo { .id=0x98      , .typ=.uinteger, .name="ChapterFlagHidden"           ,.importance=.default   },
     IdInfo { .id=0x4598    , .typ=.uinteger, .name="ChapterFlagEnabled"          ,.importance=.default   },
-    IdInfo { .id=0x6E67    , .typ=.binary  , .name="ChapterSegmentUID"           ,.importance=.default   },
+    IdInfo { .id=0x6E67    , .typ=.binary  , .name="ChapterSegmentUUID"          ,.importance=.default   },
+    IdInfo { .id=0x4588    , .typ=.uinteger, .name="ChapterSkipType"             ,.importance=.default   },
     IdInfo { .id=0x6EBC    , .typ=.uinteger, .name="ChapterSegmentEditionUID"    ,.importance=.default   },
     IdInfo { .id=0x63C3    , .typ=.uinteger, .name="ChapterPhysicalEquiv"        ,.importance=.default   },
     IdInfo { .id=0x8F      , .typ=.master  , .name="ChapterTrack"                ,.importance=.default   },
@@ -247,7 +252,7 @@ pub const database = [_]IdInfo {
     IdInfo { .id=0x80      , .typ=.master  , .name="ChapterDisplay"              ,.importance=.default   },
     IdInfo { .id=0x85      , .typ=.utf8    , .name="ChapString"                  ,.importance=.default   },
     IdInfo { .id=0x437C    , .typ=.string  , .name="ChapLanguage"                ,.importance=.default   },
-    IdInfo { .id=0x437D    , .typ=.string  , .name="ChapLanguageIETF"            ,.importance=.default   },
+    IdInfo { .id=0x437D    , .typ=.string  , .name="ChapLanguageBCP47"           ,.importance=.default   },
     IdInfo { .id=0x437E    , .typ=.string  , .name="ChapCountry"                 ,.importance=.default   },
     IdInfo { .id=0x6944    , .typ=.master  , .name="ChapProcess"                 ,.importance=.default   },
     IdInfo { .id=0x6955    , .typ=.uinteger, .name="ChapProcessCodecID"          ,.importance=.default   },
@@ -267,7 +272,7 @@ pub const database = [_]IdInfo {
     IdInfo { .id=0x67C8    , .typ=.master  , .name="SimpleTag"                   ,.importance=.default   },
     IdInfo { .id=0x45A3    , .typ=.utf8    , .name="TagName"                     ,.importance=.default   },
     IdInfo { .id=0x447A    , .typ=.string  , .name="TagLanguage"                 ,.importance=.default   },
-    IdInfo { .id=0x447B    , .typ=.string  , .name="TagLanguageIETF"             ,.importance=.default   },
+    IdInfo { .id=0x447B    , .typ=.string  , .name="TagLanguageBCP47"            ,.importance=.default   },
     IdInfo { .id=0x4484    , .typ=.uinteger, .name="TagDefault"                  ,.importance=.default   },
     IdInfo { .id=0x44B4    , .typ=.uinteger, .name="TagDefaultBogus"             ,.importance=.default   },
     IdInfo { .id=0x4487    , .typ=.utf8    , .name="TagString"                   ,.importance=.default   },
@@ -294,11 +299,14 @@ pub const ID_Seek                           = Id.wrap(0x4DBB    );
 pub const ID_SeekID                         = Id.wrap(0x53AB    );
 pub const ID_SeekPosition                   = Id.wrap(0x53AC    );
 pub const ID_Info                           = Id.wrap(0x1549A966);
-pub const ID_SegmentUID                     = Id.wrap(0x73A4    );
+pub const ID_SegmentUID                     = Id.wrap(0x73A4    ); // legacy alias
+pub const ID_SegmentUUID                    = Id.wrap(0x73A4    );
 pub const ID_SegmentFilename                = Id.wrap(0x7384    );
-pub const ID_PrevUID                        = Id.wrap(0x3CB923  );
+pub const ID_PrevUID                        = Id.wrap(0x3CB923  ); // legacy alias
+pub const ID_PrevUUID                       = Id.wrap(0x3CB923  );
 pub const ID_PrevFilename                   = Id.wrap(0x3C83AB  );
-pub const ID_NextUID                        = Id.wrap(0x3EB923  );
+pub const ID_NextUID                        = Id.wrap(0x3EB923  ); // legacy alias
+pub const ID_NextUUID                       = Id.wrap(0x3EB923  );
 pub const ID_NextFilename                   = Id.wrap(0x3E83BB  );
 pub const ID_SegmentFamily                  = Id.wrap(0x4444    );
 pub const ID_ChapterTranslate               = Id.wrap(0x6924    );
@@ -370,7 +378,8 @@ pub const ID_BlockAddIDType                 = Id.wrap(0x41E7    );
 pub const ID_BlockAddIDExtraData            = Id.wrap(0x41ED    );
 pub const ID_Name                           = Id.wrap(0x536E    );
 pub const ID_Language                       = Id.wrap(0x22B59C  );
-pub const ID_LanguageIETF                   = Id.wrap(0x22B59D  );
+pub const ID_LanguageIETF                   = Id.wrap(0x22B59D  ); // legacy alias
+pub const ID_LanguageBCP47                  = Id.wrap(0x22B59D  );
 pub const ID_CodecID                        = Id.wrap(0x86      );
 pub const ID_CodecPrivate                   = Id.wrap(0x63A2    );
 pub const ID_CodecName                      = Id.wrap(0x258688  );
@@ -402,7 +411,8 @@ pub const ID_DisplayWidth                   = Id.wrap(0x54B0    );
 pub const ID_DisplayHeight                  = Id.wrap(0x54BA    );
 pub const ID_DisplayUnit                    = Id.wrap(0x54B2    );
 pub const ID_AspectRatioType                = Id.wrap(0x54B3    );
-pub const ID_ColourSpace                    = Id.wrap(0x2EB524  );
+pub const ID_ColourSpace                    = Id.wrap(0x2EB524  ); // legacy alias
+pub const ID_UncompressedFourCC             = Id.wrap(0x2EB524  );
 pub const ID_GammaValue                     = Id.wrap(0x2FB523  );
 pub const ID_FrameRate                      = Id.wrap(0x2383E3  );
 pub const ID_Colour                         = Id.wrap(0x55B0    );
@@ -442,6 +452,7 @@ pub const ID_OutputSamplingFrequency        = Id.wrap(0x78B5    );
 pub const ID_Channels                       = Id.wrap(0x9F      );
 pub const ID_ChannelPositions               = Id.wrap(0x7D7B    );
 pub const ID_BitDepth                       = Id.wrap(0x6264    );
+pub const ID_Emphasis                       = Id.wrap(0x92F1    );
 pub const ID_TrackOperation                 = Id.wrap(0xE2      );
 pub const ID_TrackCombinePlanes             = Id.wrap(0xE3      );
 pub const ID_TrackPlane                     = Id.wrap(0xE4      );
@@ -490,7 +501,8 @@ pub const ID_Attachments                    = Id.wrap(0x1941A469);
 pub const ID_AttachedFile                   = Id.wrap(0x61A7    );
 pub const ID_FileDescription                = Id.wrap(0x467E    );
 pub const ID_FileName                       = Id.wrap(0x466E    );
-pub const ID_FileMimeType                   = Id.wrap(0x4660    );
+pub const ID_FileMimeType                   = Id.wrap(0x4660    ); // legacy alias
+pub const ID_FileMediaType                  = Id.wrap(0x4660    );
 pub const ID_FileData                       = Id.wrap(0x465C    );
 pub const ID_FileUID                        = Id.wrap(0x46AE    );
 pub const ID_FileReferral                   = Id.wrap(0x4675    );
@@ -502,6 +514,9 @@ pub const ID_EditionUID                     = Id.wrap(0x45BC    );
 pub const ID_EditionFlagHidden              = Id.wrap(0x45BD    );
 pub const ID_EditionFlagDefault             = Id.wrap(0x45DB    );
 pub const ID_EditionFlagOrdered             = Id.wrap(0x45DD    );
+pub const ID_EditionDisplay                 = Id.wrap(0x4520    );
+pub const ID_EditionString                  = Id.wrap(0x4521    );
+pub const ID_EditionLanguageIETF            = Id.wrap(0x45E4    );
 pub const ID_ChapterAtom                    = Id.wrap(0xB6      );
 pub const ID_ChapterUID                     = Id.wrap(0x73C4    );
 pub const ID_ChapterStringUID               = Id.wrap(0x5654    );
@@ -509,7 +524,9 @@ pub const ID_ChapterTimeStart               = Id.wrap(0x91      );
 pub const ID_ChapterTimeEnd                 = Id.wrap(0x92      );
 pub const ID_ChapterFlagHidden              = Id.wrap(0x98      );
 pub const ID_ChapterFlagEnabled             = Id.wrap(0x4598    );
-pub const ID_ChapterSegmentUID              = Id.wrap(0x6E67    );
+pub const ID_ChapterSegmentUID              = Id.wrap(0x6E67    ); // legacy alias
+pub const ID_ChapterSegmentUUID             = Id.wrap(0x6E67    );
+pub const ID_ChapterSkipType                = Id.wrap(0x4588    );
 pub const ID_ChapterSegmentEditionUID       = Id.wrap(0x6EBC    );
 pub const ID_ChapterPhysicalEquiv           = Id.wrap(0x63C3    );
 pub const ID_ChapterTrack                   = Id.wrap(0x8F      );
@@ -517,7 +534,8 @@ pub const ID_ChapterTrackUID                = Id.wrap(0x89      );
 pub const ID_ChapterDisplay                 = Id.wrap(0x80      );
 pub const ID_ChapString                     = Id.wrap(0x85      );
 pub const ID_ChapLanguage                   = Id.wrap(0x437C    );
-pub const ID_ChapLanguageIETF               = Id.wrap(0x437D    );
+pub const ID_ChapLanguageIETF               = Id.wrap(0x437D    ); // legacy alias
+pub const ID_ChapLanguageBCP47              = Id.wrap(0x437D    );
 pub const ID_ChapCountry                    = Id.wrap(0x437E    );
 pub const ID_ChapProcess                    = Id.wrap(0x6944    );
 pub const ID_ChapProcessCodecID             = Id.wrap(0x6955    );
@@ -537,7 +555,8 @@ pub const ID_TagAttachmentUID               = Id.wrap(0x63C6    );
 pub const ID_SimpleTag                      = Id.wrap(0x67C8    );
 pub const ID_TagName                        = Id.wrap(0x45A3    );
 pub const ID_TagLanguage                    = Id.wrap(0x447A    );
-pub const ID_TagLanguageIETF                = Id.wrap(0x447B    );
+pub const ID_TagLanguageIETF                = Id.wrap(0x447B    ); // legacy alias
+pub const ID_TagLanguageBCP47               = Id.wrap(0x447B    );
 pub const ID_TagDefault                     = Id.wrap(0x4484    );
 pub const ID_TagDefaultBogus                = Id.wrap(0x44B4    );
 pub const ID_TagString                      = Id.wrap(0x4487    );
