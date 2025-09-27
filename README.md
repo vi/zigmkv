@@ -2,10 +2,10 @@
 A work in progress Matroska/webm (mkv) parser in Zig.  
 For now it contains elements database, can decode mkv files to element tree, but it does not yet handle parse frame content and calculate proper timecodes.  
 Main idea was to evaluate Zig as a general purpose programming language.  
-Tested with zig version 0.8.0.  
+Tested with zig version 0.15.1.  
 
 ```
-$ zig build
+$ zig build install
 $ zig-out/bin/zigmkv l2dump < some_file.mkv
 open 0x1a45dfa3 (EBML) type=Type.master size=35
   open 0x4286 (EBMLVersion) type=Type.uinteger size=1

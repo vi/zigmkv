@@ -22,7 +22,6 @@ pub const Type = enum(u4) {
     integer,
 };
 
-
 pub const IdInfo = struct {
     id: u32,
     typ: Type,
@@ -31,27 +30,21 @@ pub const IdInfo = struct {
     importance: Importance,
 };
 
-
-
 const database2 = @import("database.zig");
 
-/// `database` is not expected to be included in compiled code unless explicitly references
-/// Type of it is `[_]IdInfo`
-///
-/// There are also a lot of ID_SomeElementName constants typed `Id`.
-usingnamespace database2;
+pub const db = database2;
 
 /// Wrapper type for Matroska element ID.
 pub const Id = struct {
-    id : u32,
+    id: u32,
 
     const Self = @This();
 
-    pub fn wrap(x:u32)Self {
-        return Self { .id = x };
+    pub fn wrap(x: u32) Self {
+        return Self{ .id = x };
     }
 
-    fn entry(self:Self)?IdInfo {
+    fn entry(self: Self) ?IdInfo {
         @setEvalBranchQuota(2000);
         inline for (database2.database) |x| {
             if (x.importance == .hot) {
@@ -59,21 +52,21 @@ pub const Id = struct {
             }
         }
         inline for (database2.database) |x| {
-            if (x.importance == .important or (know_all_elements and x.importance != .hot) ) {
+            if (x.importance == .important or (know_all_elements and x.importance != .hot)) {
                 if (self.id == x.id) return x;
             }
         }
         return null;
     }
 
-    pub fn get_type(self:Self) Type {
-        return if (@call(.{.modifier = .always_inline}, entry, .{self})) |x|x.typ else Type.unknown;
+    pub fn get_type(self: Self) Type {
+        return if (@call(.always_inline, entry, .{self})) |x| x.typ else Type.unknown;
     }
-    pub fn get_name(self:Self)?[]const u8 {
-        return if (@call(.{.modifier = .always_inline}, entry, .{self})) |x|x.name else null;
+    pub fn get_name(self: Self) ?[]const u8 {
+        return if (@call(.always_inline, entry, .{self})) |x| x.name else null;
     }
 
-    pub fn eql(self:Self, other:Self)bool {
+    pub fn eql(self: Self, other: Self) bool {
         return self.id == other.id;
     }
 };
@@ -84,5 +77,3 @@ test "basic" {
     expectEqual((?[]const u8)("Segment"), Id.wrap(0x18538067).get_name());
     @import("std").debug.assert(Id.wrap(0x18538067).eql(database2.ID_Segment));
 }
-
-

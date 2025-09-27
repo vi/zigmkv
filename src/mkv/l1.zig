@@ -4,7 +4,6 @@ const MAXDEPTH = 8; // max depth of nested EBML elements
 
 const vln = @import("../mkv.zig").vln;
 
-
 pub const TagOpenInfo = struct {
     id: u32,
     size: ?u64,
@@ -25,10 +24,10 @@ pub const Event = union(enum) {
 const ReadingEbmlVln = vln.EbmlVlnReader;
 
 const WaitingForId = struct {
-    reading_num : ReadingEbmlVln,
+    reading_num: ReadingEbmlVln,
 };
 const WaitingForSize = struct {
-    reading_num : ReadingEbmlVln,
+    reading_num: ReadingEbmlVln,
     element_id: u32,
 };
 
@@ -41,9 +40,9 @@ const State = union(enum) {
     /// Waiting until we get full element ID
     waiting_for_id: WaitingForId,
     /// Waiting until we get full EBML element size
-    waiting_for_size : WaitingForSize,
+    waiting_for_size: WaitingForSize,
     /// Inside non-Master EBML element
-    streaming_data : StreamingData,
+    streaming_data: StreamingData,
 };
 
 const ParentElement = struct {
@@ -58,12 +57,10 @@ parent_elements: [MAXDEPTH]ParentElement,
 parent_element_count: u8,
 
 pub fn new() Self {
-    var p = Self { 
-        .state = State { 
-            .waiting_for_id = WaitingForId {
-                .reading_num = ReadingEbmlVln.new(),
-            }
-        },
+    const p = Self{
+        .state = State{ .waiting_for_id = WaitingForId{
+            .reading_num = ReadingEbmlVln.new(),
+        } },
         .parent_elements = undefined,
         .parent_element_count = 0,
     };
@@ -73,27 +70,27 @@ pub fn new() Self {
 /// Make L1Parser interpret specified bytes, calling `callback` if some event is ready to go.
 /// The data is only minimally cached. Short pushes result in short `RawData` events.
 pub fn push_bytes(
-                    self: *Self, 
-                    b: []const u8, 
-                    usrdata: anytype,
-                    callback: fn(usrdata: @TypeOf(usrdata), event: Event)anyerror!void,
-                )anyerror!void {
+    self: *Self,
+    b: []const u8,
+    usrdata: anytype,
+    callback: *const fn (usrdata: @TypeOf(usrdata), event: Event) anyerror!void,
+) anyerror!void {
     var bb = b;
     var loop_again = false; // for some final cleanup events even when all data is processed
-    while(bb.len != 0 or loop_again) 
-        //: ({@import("std").debug.warn("L {} {}\n", bb.len, loop_again);}) 
+    while (bb.len != 0 or loop_again)
+    //: ({@import("std").debug.warn("L {} {}\n", bb.len, loop_again);})
     {
-        loop_again=false;
-        const immediate_parent_element : ?*ParentElement = if (self.parent_element_count > 0) &self.parent_elements[self.parent_element_count-1] else null;
+        loop_again = false;
+        const immediate_parent_element: ?*ParentElement = if (self.parent_element_count > 0) &self.parent_elements[self.parent_element_count - 1] else null;
 
         if (immediate_parent_element) |par| {
             //@import("std").debug.warn("P rem={} id={x}\n", par.bytes_remaining, par.element_id);
             if (par.bytes_remaining == 0) {
-                try callback(usrdata, Event{.TagClosed=TagCloseInfo { .id = par.element_id} });
+                try callback(usrdata, Event{ .TagClosed = TagCloseInfo{ .id = par.element_id } });
                 self.parent_element_count -= 1;
                 // TODO: check if state is not this one and maybe report error
-                self.state = State {
-                    .waiting_for_id = WaitingForId {
+                self.state = State{
+                    .waiting_for_id = WaitingForId{
                         .reading_num = ReadingEbmlVln.new(),
                     },
                 };
@@ -113,17 +110,17 @@ pub fn push_bytes(
                 const reti = ss.reading_num.push_bytes(bb[0..allowed_bytes], true);
                 bb = bb[reti.consumed_bytes..];
                 if (immediate_parent_element) |par| {
-                    par.bytes_remaining -= @intCast(u32, reti.consumed_bytes);
+                    par.bytes_remaining -= @intCast(reti.consumed_bytes);
                 }
 
-                const ret : anyerror!?u64 = reti.result;
+                const ret: anyerror!?u64 = reti.result;
                 _ = ret catch |x| if (x == error._NotReadyYet) continue;
                 const id = (try ret) orelse return error.MkvInvalidElementId;
                 if (id > 0xFFFFFFFE) return error.MkvElementIdTooLarge;
-                self.state = State { 
-                    .waiting_for_size = WaitingForSize { 
+                self.state = State{
+                    .waiting_for_size = WaitingForSize{
                         .reading_num = ReadingEbmlVln.new(),
-                        .element_id = @intCast(u32,id),
+                        .element_id = @intCast(id),
                     },
                 };
                 continue;
@@ -138,24 +135,24 @@ pub fn push_bytes(
                 const reti = ss.reading_num.push_bytes(bb[0..allowed_bytes], false);
                 bb = bb[reti.consumed_bytes..];
                 if (immediate_parent_element) |par| {
-                    par.bytes_remaining -= @intCast(u32, reti.consumed_bytes);
+                    par.bytes_remaining -= @intCast(reti.consumed_bytes);
                 }
-                
-                const ret : anyerror!?u64 = reti.result;
+
+                const ret: anyerror!?u64 = reti.result;
                 _ = ret catch |x| if (x == error._NotReadyYet) continue;
                 var size = try ret;
 
-                var ti = TagOpenInfo { 
+                var ti = TagOpenInfo{
                     .id = ss.element_id,
                     .size = size,
                     .write_true_here_if_master_element = false,
                 };
-                try callback(usrdata, Event{.TagOpened=&ti});
+                try callback(usrdata, Event{ .TagOpened = &ti });
                 if (size) |x| if (x > 0xFFFFFFFF) {
                     // Considering that large elements infinite
                     size = null;
                 };
-                var size32 = if(size)|x|@intCast(u32, x) else null;
+                var size32: ?u32 = if (size) |x| @intCast(x) else null;
 
                 if (immediate_parent_element) |par| {
                     // Fill in size even if child element's size is null
@@ -171,8 +168,8 @@ pub fn push_bytes(
 
                 if (!ti.write_true_here_if_master_element) {
                     // non-master element
-                    self.state = State {
-                        .streaming_data = StreamingData {
+                    self.state = State{
+                        .streaming_data = StreamingData{
                             .element_id = ss.element_id,
                             .bytes_remaining = size32,
                         },
@@ -195,8 +192,8 @@ pub fn push_bytes(
                             par.bytes_remaining -= sz;
                         }
                     }
-                    self.state = State {
-                        .waiting_for_id = WaitingForId {
+                    self.state = State{
+                        .waiting_for_id = WaitingForId{
                             .reading_num = ReadingEbmlVln.new(),
                         },
                     };
@@ -205,21 +202,21 @@ pub fn push_bytes(
             },
             .streaming_data => |*ss| {
                 var bytes_to_haul_this_time = bb.len;
-                if (ss.bytes_remaining)|x|{
+                if (ss.bytes_remaining) |x| {
                     if (bytes_to_haul_this_time > x) bytes_to_haul_this_time = x;
                 }
-                try callback(usrdata, Event{.RawDataChunk=bb[0..bytes_to_haul_this_time]});
-                bb=bb[bytes_to_haul_this_time..];
+                try callback(usrdata, Event{ .RawDataChunk = bb[0..bytes_to_haul_this_time] });
+                bb = bb[bytes_to_haul_this_time..];
                 if (immediate_parent_element) |par| {
-                    par.bytes_remaining -= @intCast(u32, bytes_to_haul_this_time);
+                    par.bytes_remaining -= @intCast(bytes_to_haul_this_time);
                 }
-                if (ss.bytes_remaining)|*x|{
-                    x.* -= @intCast(u32,bytes_to_haul_this_time);
+                if (ss.bytes_remaining) |*x| {
+                    x.* -= @intCast(bytes_to_haul_this_time);
                     if (x.* == 0) {
                         // finished streaming
-                        try callback(usrdata, Event{.TagClosed=TagCloseInfo { .id = ss.element_id} });
-                        self.state = State {
-                            .waiting_for_id = WaitingForId {
+                        try callback(usrdata, Event{ .TagClosed = TagCloseInfo{ .id = ss.element_id } });
+                        self.state = State{
+                            .waiting_for_id = WaitingForId{
                                 .reading_num = ReadingEbmlVln.new(),
                             },
                         };

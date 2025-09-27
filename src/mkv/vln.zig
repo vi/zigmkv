@@ -3,8 +3,8 @@ const assert = std.debug.assert;
 
 /// Returns length of EBML VLN based on first byte, including the first byte
 /// Returns error if it is 0.
-pub fn len(first_byte:u8) !usize {
-    return switch(first_byte) {
+pub fn len(first_byte: u8) !usize {
+    return switch (first_byte) {
         0x80...0xFF => 1,
         0x40...0x7F => 2,
         0x20...0x3F => 3,
@@ -19,12 +19,12 @@ pub fn len(first_byte:u8) !usize {
 
 /// Returns parsed VLN, with or without the size tag, or null of VLN's data part is all 1-s.
 /// Panics if the number is invalid.
-pub fn parse_unsigned(b:[]const u8, with_tag: bool) ?u64 {
+pub fn parse_unsigned(b: []const u8, with_tag: bool) ?u64 {
     assert(b.len > 0);
     const s = len(b[0]) catch @panic("Invalid EMBL variable-length number");
     assert(b.len == s);
-    
-    var mask : u8 = switch(s) {
+
+    var mask: u8 = switch (s) {
         1 => 0xFF,
         2 => 0x7F,
         3 => 0x3F,
@@ -36,12 +36,12 @@ pub fn parse_unsigned(b:[]const u8, with_tag: bool) ?u64 {
         else => unreachable,
     };
     if (!with_tag) mask >>= 1;
-    var x           = @intCast(u64, mask & b[0]);
-    var maxpossible = @intCast(u64, mask);
+    var x: u64 = @intCast(mask & b[0]);
+    var maxpossible: u64 = @intCast(mask);
 
-    for(b[1..]) |v| {
+    for (b[1..]) |v| {
         x <<= 8;
-        x |= @intCast(u64, v);
+        x |= @intCast(v);
         maxpossible <<= 8;
         maxpossible |= 0xFF;
     }
@@ -91,7 +91,7 @@ pub const EbmlVlnReader = struct {
     const Self2 = @This();
 
     pub fn new() Self2 {
-        return Self2 {
+        return Self2{
             .bytes_already_in_buffer = 0,
             .buf = [1]u8{0} ** BUFL,
         };
@@ -103,30 +103,30 @@ pub const EbmlVlnReader = struct {
         consumed_bytes: usize,
     };
     pub fn push_bytes(self: *Self2, bb: []const u8, with_tag: bool) PushBytesRet {
-        if (bb.len == 0) return PushBytesRet { .result = error._NotReadyYet, .consumed_bytes = 0 };
-        const bytes_available = @intCast(usize,self.bytes_already_in_buffer) + bb.len;
-        const first_byte : u8 = if (self.bytes_already_in_buffer  > 0) self.buf[0] else bb[0];
-        const required_bytes : usize = len(first_byte) catch |e| return PushBytesRet { .result = e, .consumed_bytes = 0};
+        if (bb.len == 0) return PushBytesRet{ .result = error._NotReadyYet, .consumed_bytes = 0 };
+        const bytes_available = @as(usize, @intCast(self.bytes_already_in_buffer)) + bb.len;
+        const first_byte: u8 = if (self.bytes_already_in_buffer > 0) self.buf[0] else bb[0];
+        const required_bytes: usize = len(first_byte) catch |e| return PushBytesRet{ .result = e, .consumed_bytes = 0 };
         if (required_bytes > bytes_available) {
             // Remember those bytes
-            var can_copy = BUFL - @intCast(usize, self.bytes_already_in_buffer);
+            var can_copy = BUFL - @as(usize, @intCast(self.bytes_already_in_buffer));
             if (can_copy > bb.len) can_copy = bb.len;
-            std.mem.copy(u8, self.buf[self.bytes_already_in_buffer..(self.bytes_already_in_buffer+can_copy)], bb[0..can_copy]);
-            self.bytes_already_in_buffer+=@intCast(u8,can_copy);
-            return PushBytesRet { .result = error._NotReadyYet, .consumed_bytes = can_copy };
+            @memmove(self.buf[self.bytes_already_in_buffer..(self.bytes_already_in_buffer + can_copy)], bb[0..can_copy]);
+            self.bytes_already_in_buffer += @intCast(can_copy);
+            return PushBytesRet{ .result = error._NotReadyYet, .consumed_bytes = can_copy };
         }
-        var vnb : []const u8 = undefined;
-        var consumed_bytes : usize = undefined;
+        var vnb: []const u8 = undefined;
+        var consumed_bytes: usize = undefined;
         if (self.bytes_already_in_buffer == 0) {
             // fast&happy path
             vnb = bb[0..required_bytes];
             consumed_bytes = required_bytes;
         } else {
-            const to_copy = required_bytes-self.bytes_already_in_buffer;
-            std.mem.copy(u8, self.buf[self.bytes_already_in_buffer..required_bytes], bb[0..to_copy]);
+            const to_copy = required_bytes - self.bytes_already_in_buffer;
+            @memmove(self.buf[self.bytes_already_in_buffer..required_bytes], bb[0..to_copy]);
             vnb = self.buf[0..required_bytes];
             consumed_bytes = to_copy;
         }
-        return PushBytesRet { .result = parse_unsigned(vnb, with_tag), .consumed_bytes = consumed_bytes };
+        return PushBytesRet{ .result = parse_unsigned(vnb, with_tag), .consumed_bytes = consumed_bytes };
     }
 };
